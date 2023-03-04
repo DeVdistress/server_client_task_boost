@@ -1,0 +1,8 @@
+/x64
+/.vs
+/client/client.vcxproj.user
+/client/x64
+/client/client.vcxproj.filters
+/server/server.vcxproj.user
+/server/x64
+/server/server.vcxproj.filters
