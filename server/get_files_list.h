@@ -27,9 +27,16 @@ class GetFilesList : public SingletonPattern<GetFilesList>
     GetFilesList(const GetFilesList& src) = delete;
     GetFilesList& operator=(const GetFilesList& rhs) = delete;
 
+    TimeCash cash;
+    bool exploreFolder(const std::string& name);
+
 public:
-    bool exploreFolder(std::string& name);
-    bool getFileList();
-    bool getFileStatus(std::string& name, FileInfo& f);
+    static void printIt(const DirListType& stuff);
+
+    GetFilesList() = default;
+    virtual ~GetFilesList() = default;
+    
+    bool getFilesList(const std::string& name, DirListType& out_list);
+    bool getFileStatus(const fs::path& name, FileInfo& f);
 };
 

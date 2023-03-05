@@ -23,9 +23,10 @@ protected:
 	static std::mutex               g_lock;
 	static std::condition_variable  g_check;
 	static std::atomic<bool>        was_init;
+	SingletonPattern() = default;
+	virtual ~SingletonPattern() = default;
 
 public:
-	SingletonPattern() = default;
 	static T& getInstance() noexcept
 	{
 		if (ptr_instance == nullptr)
@@ -33,8 +34,6 @@ public:
 
 		return *ptr_instance;
 	}
-
-	virtual ~SingletonPattern() = default;
 };
 
 // init of static properties

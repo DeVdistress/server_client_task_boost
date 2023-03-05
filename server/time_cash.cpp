@@ -2,7 +2,7 @@
 // #include <iterator>
 #include "time_cash.h"
 
-bool TimeCash::isValid(std::string& key, Clock::time_point time_stamp)
+bool TimeCash::isValid(const std::string& key, Clock::time_point time_stamp)
 {
 	bool res = false;
 
@@ -32,7 +32,7 @@ bool TimeCash::getList(DirListType& lst, Clock::time_point time_stamp)
 	return res;
 }
 
-void TimeCash::setList(DirListType& lst, Clock::time_point time_stamp)
+void TimeCash::setList(const DirListType& lst, Clock::time_point time_stamp)
 {
 	list[lst.first] = std::make_pair(time_stamp, lst.second);
 }

@@ -16,14 +16,14 @@ class TimeCash
 	CashListType list;
 
 	inline bool outOfTime(Clock::time_point& start, Clock::time_point& stop) {
-		return std::chrono::duration_cast<TimeType>(stop - start) > time_limit;
+		return std::chrono::duration_cast<TimeType>(stop - start) <= time_limit;
 	}
 
 public:
 	TimeCash(TimeType time_limit_ = std::chrono::seconds(30)): time_limit(time_limit_){}
 
-	bool isValid(std::string& key, Clock::time_point time_stamp = Clock::now());
+	bool isValid(const std::string& key, Clock::time_point time_stamp = Clock::now());
 	bool getList(DirListType& lst, Clock::time_point time_stamp = Clock::now());
-	void setList(DirListType& lst, Clock::time_point time_stamp = Clock::now());
+	void setList(const DirListType& lst, Clock::time_point time_stamp = Clock::now());
 };
 
