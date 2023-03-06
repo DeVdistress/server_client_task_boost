@@ -8,7 +8,7 @@
 
 using boost::asio::ip::tcp;
 
-class MyServer
+struct MyServer
 {
     static const int max_length = 100*1024;
 
@@ -26,10 +26,11 @@ class MyServer
                 boost::asio::streambuf::mutable_buffers_type mutableBuffer = buf.prepare(max_length);
 
                 already_read_ += sock.read_some(mutableBuffer, error);
-                auto sz_cmd = SerDes::deserialize(buf, dir, cmd);
-
+                
                 if (already_read_ >= sizeof(SerDes::TypeCmd) + sizeof(size_t))
                 {
+                    auto sz_cmd = SerDes::deserialize(buf, dir, cmd);
+
                     if (cmd == SerDes::TypeCmd::request_dir &&
                         sz_cmd == sizeof(SerDes::TypeCmd::request_dir)) {
                         std::cout << "WOW!!!!!!!!!" << std::endl;

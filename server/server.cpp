@@ -1,13 +1,10 @@
 // server.cpp
 //
-#include <iterator>
-#include <algorithm>
-
 #include "my_server.h"
 #include "get_files_list.h"
 #include "ser_des.h"
 
-//#define TEST_IS_WORKING
+#define TEST_IS_WORKING
 #define THIS_ONE_HAS_MAIN
 
 void testFileList() {
@@ -23,16 +20,20 @@ void testFileList() {
 
     boost::asio::streambuf buf;
     SerDes::TypeCmd cmd = SerDes::TypeCmd::request_dir;
+
+#if(1)
     SerDes::serialize(buf, tmp, cmd);
 
     SerDes::deserialize(buf, tmp2, cmd);
+    std::cout << "--------------------" << std::endl;
     std::cout << "CMD = " << static_cast<unsigned long long>(cmd) << std::endl;
     GetFilesList::printIt(tmp2);
-
+#endif
     cmd = SerDes::TypeCmd::submit_dir;
     SerDes::serialize(buf, tmp, cmd);
 
     SerDes::deserialize(buf, tmp2, cmd);
+    std::cout << "--------------------" << std::endl;
     std::cout << "CMD = " << static_cast<unsigned long long>(cmd) << std::endl;
     GetFilesList::printIt(tmp2);
 }
@@ -54,6 +55,10 @@ void testFileList() {
         
         port = std::atoi(argv[1]);
     
+        MyServer ser;
+        ser.work(port);
+
+
         return 0;
     }
 #endif

@@ -5,7 +5,7 @@
 
 struct SerDes
 {
-    enum class TypeCmd : unsigned long long
+    enum class TypeCmd : size_t
     {
         request_dir = 0xFFA07502,
         submit_dir  = 0x55A07501,
@@ -13,28 +13,35 @@ struct SerDes
 
     inline static const size_t serialize(boost::asio::streambuf& buf, const DirListType& wt, const TypeCmd& cmd) {
         std::ostream out(&buf);
-
-        unsigned long long my_cmd = static_cast<unsigned long long>(cmd);
-        out.write(reinterpret_cast<const char*>(&my_cmd), sizeof(my_cmd));
-
         size_t total_size = 0;
 
-        if (cmd == TypeCmd::submit_dir) {
-            total_size = sizeof(wt);
-        }
-        else if (cmd == TypeCmd::request_dir) {
-            total_size = sizeof(my_cmd);
-        }
-            
-        out.write(reinterpret_cast<const char*>(&total_size), sizeof(total_size));
+        // Cmd
+        size_t my_cmd = static_cast<size_t>(cmd);
+        out.write(reinterpret_cast<const char*>(&my_cmd), sizeof(my_cmd));
+
+        // Total size
+        total_size = sizeof(my_cmd) + sizeof(total_size) +
+            sizeof(size_t) + sizeof(wt.first);
 
         if (cmd != TypeCmd::request_dir) {
-            size_t first_size = wt.first.size();
-            size_t second_size = wt.second.size();
+            total_size += sizeof(size_t) + sizeof(wt.second);
+        }
 
-            out.write(reinterpret_cast<const char*>(&first_size), sizeof(first_size));
+        out.write(reinterpret_cast<const char*>(&total_size), sizeof(total_size));
+        
+        // First size
+        size_t first_size = wt.first.size();
+        out.write(reinterpret_cast<const char*>(&first_size), sizeof(first_size));
+        
+        // First
+        out << wt.first << std::endl;
+   
+        if (cmd != TypeCmd::request_dir) {
+            // Second size
+            size_t second_size = wt.second.size();
             out.write(reinterpret_cast<const char*>(&second_size), sizeof(second_size));
-            out << wt.first << std::endl;
+                        
+            // Second
             out << wt.second << std::endl;
         }
 
@@ -44,23 +51,47 @@ struct SerDes
     inline static const size_t deserialize(boost::asio::streambuf& buf, DirListType& wt, TypeCmd& cmd) {
         std::istream is(&buf);
 
-        unsigned long long my_cmd = static_cast<unsigned long long>(cmd);
+        size_t my_cmd = static_cast<size_t>(cmd);
         size_t total_size = 0;
-        size_t first_size_2 = 0;
-        size_t second_size_2 = 0;
+        size_t first_size = 0;
+        size_t second_size = 0;
+        size_t true_total_size = 0;
+        char tmp;
 
+        // Cmd
         is.read(reinterpret_cast<char*>(&my_cmd), sizeof(my_cmd));
-        is.read(reinterpret_cast<char*>(&total_size), sizeof(total_size));
+        total_size += sizeof(my_cmd);
+
+        // Total size
+        is.read(reinterpret_cast<char*>(&true_total_size), sizeof(true_total_size));
+        total_size += sizeof(total_size);
+        
+        // First size
+        is.read(reinterpret_cast<char*>(&first_size), sizeof(first_size));
+        total_size += sizeof(first_size);
+
+        // First
+        wt.first.resize(first_size);
+        is >> wt.first;
+        total_size += sizeof(wt.first);
+        is.get(tmp);
 
         cmd = static_cast<TypeCmd>(my_cmd);
-
         if (cmd != TypeCmd::request_dir) {
-            is.read(reinterpret_cast<char*>(&first_size_2), sizeof(first_size_2));
-            is.read(reinterpret_cast<char*>(&second_size_2), sizeof(second_size_2));
-            wt.first.resize(first_size_2);
-            wt.second.resize(second_size_2);
-            is >> wt.first;
+            // Second size
+            is.read(reinterpret_cast<char*>(&second_size), sizeof(second_size));
+            total_size += sizeof(second_size);
+
+            // Second
+            wt.second.resize(second_size);
             is >> wt.second;
+            total_size += sizeof(wt.second);
+            is.get(tmp);
+        }
+
+        if (true_total_size != total_size) {
+            std::cout << "Error true_total_size=" << true_total_size <<
+                "  != total_size=" << total_size << std::endl;
         }
 
         return total_size;
