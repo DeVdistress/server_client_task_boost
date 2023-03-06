@@ -151,10 +151,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\server\get_files_list.cpp" />
+    <ClCompile Include="..\server\time_cash.cpp" />
     <ClCompile Include="client.cpp" />
-    <ClCompile Include="my_client.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\server\get_files_list.h" />
+    <ClInclude Include="..\server\time_cash.h" />
     <ClInclude Include="my_client.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>

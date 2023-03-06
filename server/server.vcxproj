@@ -152,7 +152,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="get_files_list.cpp" />
-    <ClCompile Include="my_server.cpp" />
     <ClCompile Include="server.cpp" />
     <ClCompile Include="time_cash.cpp" />
   </ItemGroup>

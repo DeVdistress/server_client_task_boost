@@ -4,7 +4,7 @@
 #include "get_files_list.h"
 #include "ser_des.h"
 
-#define TEST_IS_WORKING
+//#define TEST_IS_WORKING
 #define THIS_ONE_HAS_MAIN
 
 void testFileList() {

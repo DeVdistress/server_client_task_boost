@@ -7,8 +7,6 @@
 #include "time_cash.h"
 #include "single_tone.h"
 
-namespace fs = std::filesystem;
-
 struct HumanReadable {
     std::uintmax_t size{};
 private:
@@ -37,6 +35,6 @@ public:
     virtual ~GetFilesList() = default;
     
     bool getFilesList(const std::string& name, DirListType& out_list);
-    bool getFileStatus(const fs::path& name, FileInfo& f);
+    bool getFileStatus(const std::filesystem::path& name, FileInfo& f);
 };
 
