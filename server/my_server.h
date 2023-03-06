@@ -28,9 +28,14 @@ class MyServer
                 already_read_ += sock.read_some(mutableBuffer, error);
                 auto sz_cmd = SerDes::deserialize(buf, dir, cmd);
 
-                if (cmd == SerDes::TypeCmd::request_dir &&
-                    sz_cmd == sizeof(SerDes::TypeCmd::request_dir)) {
-                    std::cout << "WOW!!!!!!!!!" << std::endl;
+                if (already_read_ >= sizeof(SerDes::TypeCmd) + sizeof(size_t))
+                {
+                    if (cmd == SerDes::TypeCmd::request_dir &&
+                        sz_cmd == sizeof(SerDes::TypeCmd::request_dir)) {
+                        std::cout << "WOW!!!!!!!!!" << std::endl;
+                    }
+                    // ToDo: transmit list of files
+                    already_read_ = 0;
                 }
 
                 if (error == boost::asio::error::eof)
