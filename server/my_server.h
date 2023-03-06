@@ -1,37 +1,42 @@
 #pragma once
 #include <SDKDDKVer.h>
-#include <cstdlib>
-#include <iostream>
-#include <ctime>
 #include <iostream>
 #include <string>
 #include <thread>
-#include <utility>
-#include <chrono>
 #include <boost/asio.hpp>
+#include "ser_des.h"
 
 using boost::asio::ip::tcp;
 
 class MyServer
 {
-    static const int max_length = 1024;
+    static const int max_length = 100*1024;
 
     void session(tcp::socket sock)
     {
+        boost::asio::streambuf buf;
+        size_t already_read_ = 0;
+        DirListType dir;
+        SerDes::TypeCmd cmd; 
         try
         {
             for (;;)
             {
-                char data[max_length];
-
                 boost::system::error_code error;
-                size_t length = sock.read_some(boost::asio::buffer(data), error);
+                boost::asio::streambuf::mutable_buffers_type mutableBuffer = buf.prepare(max_length);
+
+                already_read_ += sock.read_some(mutableBuffer, error);
+                auto sz_cmd = SerDes::deserialize(buf, dir, cmd);
+
+                if (cmd == SerDes::TypeCmd::request_dir &&
+                    sz_cmd == sizeof(SerDes::TypeCmd::request_dir)) {
+                    std::cout << "WOW!!!!!!!!!" << std::endl;
+                }
+
                 if (error == boost::asio::error::eof)
                     break; // Connection closed cleanly by peer.
                 else if (error)
                     throw boost::system::system_error(error); // Some other error.
-
-                boost::asio::write(sock, boost::asio::buffer(data, length));
             }
         }
         catch (std::exception& e)

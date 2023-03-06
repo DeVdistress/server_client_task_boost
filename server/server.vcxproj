@@ -151,7 +151,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="file_info.cpp" />
     <ClCompile Include="get_files_list.cpp" />
     <ClCompile Include="my_server.cpp" />
     <ClCompile Include="server.cpp" />
@@ -166,6 +165,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="ser_des.h" />
     <ClInclude Include="single_tone.h" />
     <ClInclude Include="time_cash.h" />
   </ItemGroup>
