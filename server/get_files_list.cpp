@@ -2,6 +2,8 @@
 
 bool GetFilesList::exploreFolder(const std::string& name)
 {
+    MY_LOCKER_MUTEX
+
 	bool res = false;
     const std::string pathString = name;
     const fs::path path(pathString);
@@ -40,6 +42,8 @@ bool GetFilesList::getFilesList(const std::string& name, DirListType& out_list)
 	bool res = false;
     res = exploreFolder(name);
     
+    MY_LOCKER_MUTEX
+
     if (res) {
         out_list.first = name;
         res = cash.getList(out_list);
@@ -78,11 +82,17 @@ bool GetFilesList::getFileStatus(const fs::path& name, FileInfo& f)
 
 void GetFilesList::printIt(const DirListType& stuff)
 {
+    MY_LOCKER_MUTEX
+
     std::cout << "--------------------" << std::endl;
     std::cout << stuff.first << std::endl;
 
     for (auto i : stuff.second) {
-        std::cout << " " << i.name << " " << i.type 
-            << " " << HumanReadable{i.size_of_file} << std::endl;
+        std::cout << "\t" << i.name << " " << i.type;
+
+        if (i.enum_type == FileInfo::TypeFile::file)
+            std::cout << " " << HumanReadable{ i.size_of_file };
+
+        std::cout << std::endl;
     }
 }
