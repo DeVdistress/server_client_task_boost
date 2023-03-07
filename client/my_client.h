@@ -12,9 +12,16 @@ using boost::asio::ip::tcp;
 
 struct MyClient
 {
+#if(1)
     static const int max_length = 100 * 1024;
+    boost::asio::io_context io_context;
+    tcp::socket s;
+    tcp::resolver resolver;
 
-    std::string getPathFromConsole() {
+    MyClient() : io_context(), s(io_context), resolver(io_context) {}
+
+    std::string getPathFromConsole()
+    {
 
         while (true) {
             std::cout << "Enter message: ";
@@ -28,38 +35,31 @@ struct MyClient
         }
     }
 
-    void client(boost::asio::io_context& io_context, tcp::socket& s, tcp::resolver& resolver, char* host, char* port)
+    size_t up_to_enter(const boost::system::error_code&, size_t bytes)
     {
-        auto my_thread = std::thread(&MyClient::session, this, std::ref(s), std::ref(resolver), host, port);
-        //my_thread.detach();
-        my_thread.join();
+        for (size_t i = 0; i < bytes; ++i)
+            //if (buff[i + offset] == '\n')
+            //    return 0;
+            return 1;
     }
+
+    void on_read(const boost::system::error_code&, size_t) {}
 
     int work(char* host, char* port)
     {
-        boost::asio::io_context io_context;
-
-        tcp::socket s(io_context);
-        tcp::resolver resolver(io_context);
-        
-        client(io_context, s, resolver, host, port);
-
-        return 0;
-    }
-
-    void session(tcp::socket& s, tcp::resolver& resolver, char* host, char* port)
-    {
         boost::asio::streambuf buf;
-
-        boost::asio::connect(s, resolver.resolve(host, port));
+        boost::asio::streambuf buf_r;
 
         try
         {
+            boost::asio::connect(s, resolver.resolve(host, port));
+
             size_t already_read_ = 0;
             DirListType dir;
             size_t total_size = 0;
 
-            while (true) {
+            while (true)
+            {
                 std::string path = getPathFromConsole();
 
                 DirListType tmp;
@@ -69,10 +69,10 @@ struct MyClient
                 size_t request_length = SerDes::serialize(buf, tmp, cmd);
                 boost::asio::write(s, buf);
 
-                while (false) {
-                    
+                while (true)
+                {
                     boost::system::error_code error;
-                    already_read_ += boost::asio::read(s, buf, error);
+                    already_read_ += boost::asio::read(s, buf_r, error);
 
                     if (already_read_ >= (sizeof(SerDes::TypeCmd) + sizeof(size_t)) && !total_size)
                     {
@@ -80,7 +80,7 @@ struct MyClient
                         already_read_ -= sizeof(size_t) * 2;
                     }
 
-                    if (already_read_ >= total_size)
+                    if (already_read_ != 0 && already_read_ >= total_size)
                     {
                         SerDes::deserialize(buf, dir, cmd);
 
@@ -102,12 +102,16 @@ struct MyClient
                         throw boost::system::system_error(error);
                 }
             }
-
         }
         catch (std::exception& e)
         {
             std::cerr << "Exception: " << e.what() << "\n";
         }
+
+        return 0;
     }
+
+#endif
 };
+
 

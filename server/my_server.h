@@ -39,7 +39,7 @@ struct MyServer
 
                     std::cout << "get list of dir = '" << dir.first << "'" << std::endl;
                     
-                    GetFilesList::getInstance().getFilesList("D:/", dir);
+                    GetFilesList::getInstance().getFilesList(dir.first, dir);
                     std::cout << "--------------------" << std::endl;
                     std::cout << "CMD = " << static_cast<unsigned long long>(cmd) << std::endl;
                     GetFilesList::printIt(dir);

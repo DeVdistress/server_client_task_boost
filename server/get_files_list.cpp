@@ -84,6 +84,8 @@ bool GetFilesList::getFileStatus(const fs::path& name, FileInfo& f)
 
 void GetFilesList::printIt(const DirListType& stuff)
 {
+    MY_LOCKER_MUTEX
+
     std::cout << "--------------------" << std::endl;
     std::cout << stuff.first << std::endl;
 
